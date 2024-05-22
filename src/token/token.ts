@@ -1,4 +1,4 @@
-type TokenType = string;
+export type TokenType = string;
 
 export type Token = {
     literal: string;
@@ -16,15 +16,19 @@ export const PLUS: TokenType = "+";
 export const MINUS: TokenType = "-";
 export const BANG: TokenType = "!";
 export const ASTERISK: TokenType = "*";
-export const DIV: TokenType = "/";
+export const SLASH: TokenType = "/";
 export const MOD: TokenType = "%";
-
 export const LT: TokenType = "<";
 export const GT: TokenType = ">";
+
 export const LT_EQ: TokenType = "<=";
 export const GT_EQ: TokenType = ">=";
 export const EQ: TokenType = "==";
 export const NOT_EQ: TokenType = "!=";
+export const PLUS_EQ: TokenType = "+=";
+export const MINUS_EQ: TokenType = "-=";
+export const AST_EQ: TokenType = "*=";
+export const SLASH_EQ: TokenType = "/=";
 
 export const COMMA: TokenType = ",";
 export const SEMICOLON: TokenType = ";";
@@ -40,5 +44,28 @@ export const RETURN: TokenType = "RETURN";
 export const TRUE: TokenType = "TRUE";
 export const FALSE: TokenType = "FALSE";
 export const IF: TokenType = "IF";
-export const ELIF: TokenType = "ELIF";
 export const ELSE: TokenType = "ELSE";
+
+const keywords: Map<string, TokenType> = new Map([
+    ["fnc", FUNCTION],
+    ["let", LET],
+    ["return", RETURN],
+    ["true", TRUE],
+    ["false", FALSE],
+    ["if", IF],
+    ["ELSE", ELSE]
+]);
+
+export function lookup(literal: string): TokenType {
+    let tok = keywords.get(literal);
+
+    if(tok == null) {
+        return IDENT;
+    }
+
+    return tok;
+}
+
+export function createToken( tokenLiteral: string, tokenType: TokenType): Token {
+    return {type: tokenType, literal: tokenLiteral} as Token;
+}

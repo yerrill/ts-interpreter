@@ -2,15 +2,16 @@ import * as token from "./token/token";
 import * as lexer from "./lexer/lexer";
 
 
-const TEST_PROGRAM = "let val1 = 1\
-let val2 = 2\
-let val3 = 3\
+const TEST_PROGRAM = "let abc = 1\
+let def = 2\
+let hij = 3\
 \
 fnc addmult(x, y, z) {\
     return x + y * z\
-}\
+} \
 \
-addmult(val1, val2, val3)"
+addmult(abc, def, hij)\
++= -= *= /= < > <= >= == != %"
 
 function TestTokenizer(): void {
     let expectedTokens: token.Token[] = [{type: token.LET, literal: "let"}, {type: token.IDENT, literal: "val1"},
@@ -25,12 +26,23 @@ function TestTokenizer(): void {
      {type: token.ASTERISK, literal: "*"}, {type: token.IDENT, literal: "z"}, {type: token.RBRACE, literal: "}"},
      {type: token.IDENT, literal: "addmult"}, {type: token.LPAREN, literal: "("}, {type: token.IDENT, literal: "val1"},
      {type: token.COMMA, literal: ","}, {type: token.IDENT, literal: "val2"}, {type: token.COMMA, literal: ","}, 
-     {type: token.IDENT, literal: "val3"}, {type: token.RPAREN, literal: ")"}];
+     {type: token.IDENT, literal: "val3"}, {type: token.RPAREN, literal: ")"}, {type: token.PLUS_EQ, literal: "+="},
+     {type: token.MINUS_EQ, literal: "-="}, {type: token.AST_EQ, literal: "*="}, {type: token.SLASH_EQ, literal: "/="},
+     {type: token.LT, literal: "<"}, {type: token.GT, literal: ">"}, {type: token.LT_EQ, literal: "<="},
+     {type: token.GT_EQ, literal: ">="}, {type: token.EQ, literal: "=="}, {type: token.NOT_EQ, literal: "!="}, {type: token.MOD, literal: "%"}];
 
+    let tokenizer = new lexer.Lexer(TEST_PROGRAM);
+    let currentToken: token.Token;
+    let status: boolean = true;
+    
+    for (let i in expectedTokens) {
+        currentToken = tokenizer.nextToken();
+        
+        status = status && ( expectedTokens[i].type == currentToken.type );
+        !status ? console.log(expectedTokens[i], "-", currentToken) : null;
+    }
 
-
-     for (let expectedToken in expectedTokens) {
-
-     }
+    console.log(`TestTokenizer() resulted ${status}`);
 }
 
+TestTokenizer();
