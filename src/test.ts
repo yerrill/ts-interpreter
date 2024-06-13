@@ -1,17 +1,19 @@
 import * as token from "./token/token";
 import * as lexer from "./lexer/lexer";
+import * as parser from "./parser/parser";
 
 
-const TEST_PROGRAM = "let abc = 1\
+const TEST_PROGRAM_1 = "let abc = 1\
 let def = 2\
 let hij = 3\
 \
-fnc addmult(x, y, z) {\
-    return x + y * z\
+let addmult = fnc(x, y, z) {\
+    return x + y * z + 2\
 } \
 \
-addmult(abc, def, hij)\
-+= -= *= /= < > <= >= == != %"
+addmult(abc, def, hij)"
+
+const TEST_PROGRAM = "if (abc) {abc} else { 1*2+9/4--2 }"
 
 function TestTokenizer(): void {
     let expectedTokens: token.Token[] = [{type: token.LET, literal: "let"}, {type: token.IDENT, literal: "val1"},
@@ -45,4 +47,16 @@ function TestTokenizer(): void {
     console.log(`TestTokenizer() resulted ${status}`);
 }
 
-TestTokenizer();
+function TestParser(): void {
+    let tokenizer = new lexer.Lexer(TEST_PROGRAM);
+    let parserly = new parser.Parser(tokenizer);
+
+    let tree = parserly.parseProgram();
+
+    let result = tree.toString();
+    console.log(result);
+    console.log(parserly.error)
+}
+
+//TestTokenizer();
+TestParser();

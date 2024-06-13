@@ -53,7 +53,7 @@ const keywords: Map<string, TokenType> = new Map([
     ["true", TRUE],
     ["false", FALSE],
     ["if", IF],
-    ["ELSE", ELSE]
+    ["else", ELSE]
 ]);
 
 export function lookup(literal: string): TokenType {

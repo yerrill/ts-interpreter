@@ -14,10 +14,54 @@ export interface Expression extends Node {
     expressionNode(): void;
 }
 
-export class Program implements Node {
-    statements: [Statement];
+export class ErrorStatement implements Statement {
+    token: token.Token;
 
-    constructor(s: [Statement]) {
+    constructor(token: token.Token) {
+        this.token = token;
+    }
+
+    public statementNode(): void {
+        throw new Error("Method not implemented.");
+    }
+    
+    public TokenLiteral(): String {
+        return this.token.literal;
+    }
+    
+    public toString(): String {
+        return `ErrorStatement: ${this.token.literal}, ${this.token.type}`;
+    }
+}
+
+export class ErrorExpression implements Expression {
+    token: token.Token;
+    expected?: token.TokenType;
+    msg?: String;
+
+    constructor(actual: token.Token, expected?: token.TokenType, msg?: String) {
+        this.token = actual;
+        this.expected = expected;
+        this.msg = msg;
+    }
+
+    public expressionNode(): void {
+        throw new Error("Method not implemented.");
+    }
+    
+    public TokenLiteral(): String {
+        return this.token.literal;
+    }
+    
+    public toString(): String {
+        return `(ErrorExpression: ${this.token.type}, ${this.token.literal}, ${this.expected}, ${this.msg})`;
+    }
+}
+
+export class Program implements Node {
+    statements: Statement[];
+
+    constructor(s: Statement[]) {
         this.statements = s;
     }
 
@@ -71,7 +115,7 @@ export class LetStatement implements Statement {
     }
 
     public toString(): String {
-        return `${this.token.literal} ${this.name.toString()} = ${this.value.toString()};`;
+        return `${this.token.literal} ${this.name.toString()} = ${this.value.toString()};\n`;
     }
 }
 
@@ -94,7 +138,7 @@ export class ReturnStatement implements Statement {
     }
 
     public toString(): String {
-        return `${this.token.literal} ${this.value.toString()}`;
+        return `${this.token.literal} ${this.value.toString()};`;
     }
 }
 
@@ -123,9 +167,9 @@ export class ExpressionStatement implements Statement {
 
 export class BlockStatement implements Statement {
     token: token.Token;
-    statements: [Statement];
+    statements: Statement[];
 
-    constructor(t: token.Token, s: [Statement]) {
+    constructor(t: token.Token, s: Statement[]) {
         this.token = t;
         this.statements = s;
     }
@@ -147,7 +191,7 @@ export class BlockStatement implements Statement {
 
         //return outString;
 
-        return this.statements.map((node) => node.toString()).join();
+        return `{\n${this.statements.map((node) => node.toString()).join()}\n}`;
     }
 }
 
@@ -172,7 +216,7 @@ export class Identifier implements Expression {
     }
 
     public toString(): String {
-        throw new Error("Method not implemented.");
+        return `${this.name}`;
     }
     
 }
@@ -275,9 +319,9 @@ export class IfExpression implements Expression {
     token: token.Token;
     condition: Expression;
     consequence: BlockStatement;
-    alternative: BlockStatement;
+    alternative?: BlockStatement;
 
-    constructor(t: token.Token, condition: Expression, consequence: BlockStatement, a: BlockStatement) {
+    constructor(t: token.Token, condition: Expression, consequence: BlockStatement, a?: BlockStatement) {
         this.token = t;
         this.condition = condition;
         this.consequence = consequence;
@@ -300,10 +344,10 @@ export class IfExpression implements Expression {
 
 export class FunctionLiteral implements Expression {
     token: token.Token;
-    parameters: [Identifier];
+    parameters: Identifier[];
     body: BlockStatement;
 
-    constructor(t: token.Token, p: [Identifier], b: BlockStatement) {
+    constructor(t: token.Token, p: Identifier[], b: BlockStatement) {
         this.token = t;
         this.parameters = p;
         this.body = b;
@@ -326,9 +370,9 @@ export class FunctionLiteral implements Expression {
 export class CallExpression implements Expression {
     token: token.Token;
     func: Expression;
-    arguments: [Expression];
+    arguments: Expression[];
 
-    constructor(t: token.Token, f: Expression, a: [Expression]) {
+    constructor(t: token.Token, f: Expression, a: Expression[]) {
         this.token = t;
         this.func = f;
         this.arguments = a;
