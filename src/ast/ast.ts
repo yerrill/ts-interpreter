@@ -2,8 +2,8 @@ import * as token from "../token/token";
 
 export interface Node {
     token: token.Token;
-    TokenLiteral(): String;
-    toString(): String;
+    TokenLiteral(): string;
+    toString(): string;
 }
 
 export interface Statement extends Node {
@@ -25,11 +25,11 @@ export class ErrorStatement implements Statement {
         throw new Error("Method not implemented.");
     }
     
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
     
-    public toString(): String {
+    public toString(): string {
         return `ErrorStatement: ${this.token.literal}, ${this.token.type}`;
     }
 }
@@ -37,9 +37,9 @@ export class ErrorStatement implements Statement {
 export class ErrorExpression implements Expression {
     token: token.Token;
     expected?: token.TokenType;
-    msg?: String;
+    msg?: string;
 
-    constructor(actual: token.Token, expected?: token.TokenType, msg?: String) {
+    constructor(actual: token.Token, expected?: token.TokenType, msg?: string) {
         this.token = actual;
         this.expected = expected;
         this.msg = msg;
@@ -49,11 +49,11 @@ export class ErrorExpression implements Expression {
         throw new Error("Method not implemented.");
     }
     
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
     
-    public toString(): String {
+    public toString(): string {
         return `(ErrorExpression: ${this.token.type}, ${this.token.literal}, ${this.expected}, ${this.msg})`;
     }
 }
@@ -73,7 +73,7 @@ export class Program implements Node {
         }
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         if ( this.statements.length > 0 ) {
             return this.statements[0].TokenLiteral();
         } else {
@@ -81,7 +81,7 @@ export class Program implements Node {
         }
     }
 
-    public toString(): String {
+    public toString(): string {
         let outString = "";
 
         for(let s in this.statements) {
@@ -110,11 +110,11 @@ export class LetStatement implements Statement {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
+    public toString(): string {
         return `${this.token.literal} ${this.name.toString()} = ${this.value.toString()};\n`;
     }
 }
@@ -133,11 +133,11 @@ export class ReturnStatement implements Statement {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
+    public toString(): string {
         return `${this.token.literal} ${this.value.toString()};`;
     }
 }
@@ -156,11 +156,11 @@ export class ExpressionStatement implements Statement {
         throw new Error("Method not implemented.");
     }
     
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
+    public toString(): string {
         return this.value.toString();
     }
 }
@@ -178,11 +178,11 @@ export class BlockStatement implements Statement {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
+    public toString(): string {
         //let outString = "";
 
         //for(let s in this.statements) {
@@ -200,9 +200,9 @@ export class BlockStatement implements Statement {
 export class Identifier implements Expression {
 
     token: token.Token;
-    name: String;
+    name: string;
 
-    constructor(t: token.Token, n: String) {
+    constructor(t: token.Token, n: string) {
         this.token = t;
         this.name = n;
     }
@@ -211,11 +211,11 @@ export class Identifier implements Expression {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         throw new Error("Method not implemented.");
     }
 
-    public toString(): String {
+    public toString(): string {
         return `${this.name}`;
     }
     
@@ -223,9 +223,9 @@ export class Identifier implements Expression {
 
 export class BooleanLiteral implements Expression {
     token: token.Token;
-    value: Boolean;
+    value: boolean;
 
-    constructor(t: token.Token, b: Boolean) {
+    constructor(t: token.Token, b: boolean) {
         this.token = t;
         this.value = b;
     }
@@ -234,20 +234,20 @@ export class BooleanLiteral implements Expression {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
+    public toString(): string {
         return this.token.literal;
     }
 }
 
 export class IntegerLiteral implements Expression {
     token: token.Token;
-    value: Number;
+    value: number;
 
-    constructor(t: token.Token, n: Number) {
+    constructor(t: token.Token, n: number) {
         this.token = t;
         this.value = n;
     }
@@ -256,21 +256,21 @@ export class IntegerLiteral implements Expression {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
+    public toString(): string {
         return this.token.literal;
     }
 }
 
 export class PrefixExpression implements Expression {
     token: token.Token;
-    operator: String;
+    operator: string;
     right: Expression;
 
-    constructor(t: token.Token, o: String, r: Expression) {
+    constructor(t: token.Token, o: string, r: Expression) {
         this.token = t;
         this.operator = o;
         this.right = r;
@@ -280,11 +280,11 @@ export class PrefixExpression implements Expression {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
+    public toString(): string {
         return `(${this.operator}${this.right.toString()})`;
     }
 }
@@ -292,10 +292,10 @@ export class PrefixExpression implements Expression {
 export class InfixExpression implements Expression {
     token: token.Token;
     left: Expression;
-    operator: String;
+    operator: string;
     right: Expression;
 
-    constructor(l: Expression, t: token.Token, o: String, r: Expression) {
+    constructor(l: Expression, t: token.Token, o: string, r: Expression) {
         this.token = t;
         this.left = l;
         this.operator = o;
@@ -306,11 +306,11 @@ export class InfixExpression implements Expression {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
+    public toString(): string {
         return `(${this.left.toString()}${this.operator}${this.right.toString()})`;
     }
 }
@@ -332,12 +332,12 @@ export class IfExpression implements Expression {
         throw new Error("Method not implemented.");
     }
     
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
-        let alternativeBlockString: String = this.alternative == null ? "" : `else ${this.alternative.toString()}`;
+    public toString(): string {
+        let alternativeBlockString: string = this.alternative == null ? "" : `else ${this.alternative.toString()}`;
         return `if ${this.condition.toString()} ${this.consequence.toString()} ${alternativeBlockString}`;
     }
 }
@@ -357,12 +357,12 @@ export class FunctionLiteral implements Expression {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
-        let parameterString: String = this.parameters.map((id) => id.toString()).join(", ");
+    public toString(): string {
+        let parameterString: string = this.parameters.map((id) => id.toString()).join(", ");
         return `${this.token.literal}(${parameterString})${this.body.toString()}`;
     }
 }
@@ -382,12 +382,12 @@ export class CallExpression implements Expression {
         throw new Error("Method not implemented.");
     }
 
-    public TokenLiteral(): String {
+    public TokenLiteral(): string {
         return this.token.literal;
     }
 
-    public toString(): String {
-        let argumentString: String = this.arguments.map((ex) => ex.toString()).join(", ");
+    public toString(): string {
+        let argumentString: string = this.arguments.map((ex) => ex.toString()).join(", ");
         return `${this.func.toString()}(${argumentString})`;
     }
 }

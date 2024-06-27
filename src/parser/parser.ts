@@ -29,7 +29,7 @@ const precedences: Map<token.TokenType, Priority> = new Map([
 
 export class Parser {
     private l: lexer.Lexer;
-    private errors: String[];
+    private errors: string[];
 
     private curToken: token.Token;
     private peekToken: token.Token;
@@ -84,15 +84,15 @@ export class Parser {
         this.infixParseFns.set(t, f);
     }
 
-    private curTokenIs(t: token.TokenType): Boolean {
+    private curTokenIs(t: token.TokenType): boolean {
         return this.curToken.type == t;
     }
 
-    private peekTokenIs(t: token.TokenType): Boolean {
+    private peekTokenIs(t: token.TokenType): boolean {
         return this.peekToken.type == t;
     }
 
-    private expectPeek(t: token.TokenType): Boolean {
+    private expectPeek(t: token.TokenType): boolean {
         if ( this.peekTokenIs(t) ) {
             this.nextToken();
             return true;
@@ -102,7 +102,7 @@ export class Parser {
         }
     }
 
-    get error(): String[] {
+    get error(): string[] {
         return this.errors;
     }
 
@@ -125,7 +125,7 @@ export class Parser {
             }
             this.nextToken();
         }
-        console.log(program);
+        
         return program;
     }
 
