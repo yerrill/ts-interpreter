@@ -84,18 +84,18 @@ class EvalTestCase implements TestCase{
 
         let result: object.Object | null = evaluator.Eval(program, env);
 
-        //console.log(program);
+        //console.log(program.statements[0].toString());
         return [result, result?.Value() == this.expected];
     }
 
     toString(): string {
         let [testObj, testResult] = this.Test();
-        return `(${this.testProgram.slice(0, 20)}) >> ${this.expected.toString()} >> ${testResult ? "SUCCESS" : "FAIL"}(${testObj?.Value()})`;
+        return `(${this.testProgram.slice(0, 50)}) >> ${this.expected?.toString()} >> ${testResult ? "SUCCESS" : "FAIL"}(${testObj?.Value()})`;
     }
 }
 
 function TestEval(): void {
-    let cases: TestCase[] = [
+    let cases: TestCase[] = [/*
         new EvalTestCase("1", 1),
         new EvalTestCase("true", true),
         new EvalTestCase("false", false),
@@ -108,6 +108,44 @@ function TestEval(): void {
         new EvalTestCase("!!5", true),
         new EvalTestCase("!", false),
         new EvalTestCase("!!", true),
+        new EvalTestCase("!-5", false),
+        new EvalTestCase("5 + 5 + 5 + 5 - 10", 10),
+		new EvalTestCase("2 * 2 * 2 * 2 * 2", 32),
+		new EvalTestCase("-50 + 100 + -50", 0),
+		new EvalTestCase("5 * 2 + 10", 20),
+		new EvalTestCase("5 + 2 * 10", 25),
+		new EvalTestCase("20 + 2 * -10", 0),
+		new EvalTestCase("50 / 2 * 2 + 10", 60),
+		new EvalTestCase("2 * (5 + 10)", 30),
+		new EvalTestCase("3 * 3 * 3 + 10", 37),
+		new EvalTestCase("3 * (3 * 3) + 10", 37),
+		new EvalTestCase("(5 + 10 * 2 + 15 / 3) * 2 + -10", 50),
+        new EvalTestCase("1 < 2", true),
+        new EvalTestCase("1 > 2", false),
+        new EvalTestCase("1 < 1", false),
+        new EvalTestCase("1 > 1", false),
+        new EvalTestCase("1 == 1", true),
+        new EvalTestCase("1 != 1", false),
+        new EvalTestCase("1 == 2", false),
+        new EvalTestCase("1 != 2", true),
+        new EvalTestCase("(1 == 2) == false", true),
+        new EvalTestCase("(1 == 2) == true", false),
+        new EvalTestCase("if (true) { 10 }", 10),
+        new EvalTestCase("if (false) { 10 }", null),
+        new EvalTestCase("if (1) { 10 }", 10),
+        new EvalTestCase("if (1 < 2) { 10 }", 10),
+        new EvalTestCase("if (1 > 2) { 10 }", null),
+        new EvalTestCase("if (1 > 2) { 10 } else { 20 }", 20),
+        new EvalTestCase("if (1 < 2) { 10 } else { 20 }", 10),
+        new EvalTestCase("if ((1000 / 2) + 250 * 2 == 1000) { 9999 }", 9999),*/
+        new EvalTestCase("return 10;", 10),
+		new EvalTestCase("return 10; 9;", 10),
+		new EvalTestCase("return 2 * 5; 9;", 10),
+		new EvalTestCase("9; return 2 * 5; 9;", 10),
+		new EvalTestCase("if (10 > 1) { return 10; }", 10),
+		new EvalTestCase("if (10 > 1) { if (10 > 1) { return 10; } return 1;}", 10),
+		new EvalTestCase("let f = fn(x) { return x; x + 10; }; f(10);", 10),
+		new EvalTestCase("let f = fn(x) {let result = x + 10;return result;return 10;};f(10);", 20),
     ];
     
     cases.map((v, i) => console.log(`Case ${i + 1} :: ${v.toString()}`));

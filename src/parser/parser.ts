@@ -298,8 +298,8 @@ export class Parser {
         this.nextToken();
 
         let exp = this.parseExpression(Priority.LOWEST);
-
-        if (!this.expectPeek(token.LPAREN)) {
+        
+        if (!this.expectPeek(token.RPAREN)) {
             return new ast.ErrorExpression(this.curToken);
         }
 

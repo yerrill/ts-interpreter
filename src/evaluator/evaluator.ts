@@ -14,24 +14,31 @@ function nativeBoolToBooleanObject(input: boolean): obj.Object {
     }
 }
 
-function isError(object: obj.Object): boolean {
-    return object.Type() == obj.ObjectType.ERROR_OBJ;
+function isError(object: obj.Object | null): boolean {
+    if (object != null) {
+        return object.Type() == obj.ObjectType.ERROR_OBJ;
+    }
+    return false;
 }
 
 export function Eval(node: ast.Node, env: env.Environment): obj.Object | null {
     
     if (node instanceof ast.Program) { // Would like to use a switch here but it seems to not be possible
         return evalProgram(node, env);
-    } 
+    }
     else if (node instanceof ast.BlockStatement) {
-        throw new Error("Not Implemented");
-    } 
+        return evalBlockStatement(node, env);
+    }
     else if (node instanceof ast.ExpressionStatement) {
         return Eval(node.value, env);
-    } 
+    }
     else if (node instanceof ast.ReturnStatement) {
-        throw new Error("Not Implemented");
-    } 
+        let val = Eval(node.value, env)
+		if (isError(val)) {
+			return val
+		}
+		return new obj.ReturnValue(val);
+    }
     else if (node instanceof ast.LetStatement) {
         throw new Error("Not Implemented");
     }
@@ -47,10 +54,25 @@ export function Eval(node: ast.Node, env: env.Environment): obj.Object | null {
     else if (node instanceof ast.PrefixExpression) {
         let right: obj.Object | null = Eval(node.right, env);
 
-        if (right != null && isError(right)) { // HDTW: null checking like this in type system
+        if (isError(right)) { // HDTW: null checking like this in type system
             return right;
         }
         return evalPrefixExpression(node.operator, right);
+    }
+    else if (node instanceof ast.InfixExpression) {
+        let left = Eval(node.left, env);
+        if (left == null || isError(left)) {
+            return left;
+        }
+        let right = Eval(node.right, env);
+        if (right == null || isError(right)) {
+            return right;
+        }
+
+        return evalInfixExpression(node.operator, left, right);
+    }
+    else if (node instanceof ast.IfExpression) {
+        return evalIfExpression(node, env);
     }
 
     //return newError(`No Eval Branch ${node.toString()}`);
@@ -72,6 +94,22 @@ function evalProgram(program: ast.Program, env: env.Environment): obj.Object | n
     }
 
     return result;
+}
+
+function evalBlockStatement(block: ast.BlockStatement, env: env.Environment): obj.Object | null {
+    let result: obj.Object | null = null;
+
+    for (let index in block.statements) {
+        result = Eval(block.statements[index], env);
+
+        if (result != null && 
+            (result.Type() == obj.ObjectType.RETURN_VALUE_OBJ || result.Type() == obj.ObjectType.ERROR_OBJ)) {
+            
+            return result;
+        }
+    }
+
+	return result
 }
 
 function evalPrefixExpression(operator: string, right: obj.Object | null): obj.Object {
@@ -107,6 +145,90 @@ function evalMinusOperatorExpression(right: obj.Object | null): obj.Object {
 
     let value = right.Value();
     return new obj.Integer(-value);
+}
+
+function evalInfixExpression(operator: string, right: obj.Object, left: obj.Object): obj.Object {
+    if (left instanceof obj.Integer && right instanceof obj.Integer) {
+        //left.Type() == obj.ObjectType.INTEGER_OBJ && right.Type() == obj.ObjectType.INTEGER_OBJ
+        return evalIntegerInfixExpression(operator, left, right)
+    }
+    else if (operator == "==") {
+		return nativeBoolToBooleanObject(left == right)
+    }
+	else if (operator == "!=") {
+		return nativeBoolToBooleanObject(left != right)
+    }
+    else if (left.Type() != right.Type()) {
+		return newError(`type mismatch: ${left.Type()}, ${operator}, ${right.Type()}`);
+    }
+	else {
+		return newError(`unknown operator: ${left.Type()}, ${operator}, ${right.Type()}`);
+	}
+}
+
+function evalIntegerInfixExpression(operator: string, right: obj.Integer, left: obj.Integer): obj.Object {
+    switch (operator) {
+        case "+":
+            return new obj.Integer(left.value + right.value);
+        case "-":
+            return new obj.Integer(left.value - right.value);
+        case "*":
+            return new obj.Integer(left.value * right.value);
+        case "/":
+            return new obj.Integer(left.value / right.value);
+        case "<":
+            return nativeBoolToBooleanObject(left.value < right.value);
+        case ">":
+            return nativeBoolToBooleanObject(left.value > right.value);
+        case "<=":
+            return nativeBoolToBooleanObject(left.value <= right.value);
+        case ">=":
+            return nativeBoolToBooleanObject(left.value >= right.value);
+        case "==":
+            return nativeBoolToBooleanObject(left.value == right.value);
+        case "!=":
+            return nativeBoolToBooleanObject(left.value != right.value);
+        default:
+            return newError(`unknown operator: ${left.Type()}, ${operator}, ${right.Type()}`);
+        }
+}
+
+function evalIfExpression(ie: ast.IfExpression, env: env.Environment): obj.Object | null {
+	let condition = Eval(ie.condition, env);
+
+	if (isError(condition)) {
+		return condition
+	}
+
+	if (condition != null && isTruthy(condition)) {
+		return Eval(ie.consequence, env)
+	} else if (ie.alternative != null){
+		return Eval(ie.alternative, env)
+	} else {
+		return NULL
+	}
+}
+
+function evalIdentifier(node: ast.Identifier, env: env.Environment): obj.Object {
+	let val = env.get(node.name);
+	if (val == null) {
+		return newError(`identifier not found: ${node.name}`);
+	}
+
+	return val
+}
+
+function isTruthy(ob: obj.Object): boolean {
+	switch (ob) {
+	    case NULL:
+		    return false
+	    case TRUE:
+		    return true
+	    case FALSE:
+		    return false
+	    default:
+		    return true
+	}
 }
 
 function newError(msg: string): obj.Error {
