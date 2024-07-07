@@ -95,7 +95,7 @@ class EvalTestCase implements TestCase{
 }
 
 function TestEval(): void {
-    let cases: TestCase[] = [/*
+    let cases: TestCase[] = [
         new EvalTestCase("1", 1),
         new EvalTestCase("true", true),
         new EvalTestCase("false", false),
@@ -137,7 +137,7 @@ function TestEval(): void {
         new EvalTestCase("if (1 > 2) { 10 }", null),
         new EvalTestCase("if (1 > 2) { 10 } else { 20 }", 20),
         new EvalTestCase("if (1 < 2) { 10 } else { 20 }", 10),
-        new EvalTestCase("if ((1000 / 2) + 250 * 2 == 1000) { 9999 }", 9999),*/
+        new EvalTestCase("if ((1000 / 2) + 250 * 2 == 1000) { 9999 }", 9999),
         new EvalTestCase("return 10;", 10),
 		new EvalTestCase("return 10; 9;", 10),
 		new EvalTestCase("return 2 * 5; 9;", 10),
@@ -146,6 +146,9 @@ function TestEval(): void {
 		new EvalTestCase("if (10 > 1) { if (10 > 1) { return 10; } return 1;}", 10),
 		new EvalTestCase("let f = fn(x) { return x; x + 10; }; f(10);", 10),
 		new EvalTestCase("let f = fn(x) {let result = x + 10;return result;return 10;};f(10);", 20),
+        new EvalTestCase("let fib = fn(n) {if (n == 0) {return 0} if (n == 1) {return 1} if (n > 1) {fib(n - 1) + fib(n - 2)}} fib(10)", 55),
+        new EvalTestCase("fn(x) {x + 1}(1)", 2),
+        new EvalTestCase("fn(x) {fn (y) {x * y + 1}}(1)(2)", 3),
     ];
     
     cases.map((v, i) => console.log(`Case ${i + 1} :: ${v.toString()}`));

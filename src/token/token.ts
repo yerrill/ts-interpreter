@@ -47,7 +47,7 @@ export const IF: TokenType = "IF";
 export const ELSE: TokenType = "ELSE";
 
 const keywords: Map<string, TokenType> = new Map([
-    ["fnc", FUNCTION],
+    ["fn", FUNCTION],
     ["let", LET],
     ["return", RETURN],
     ["true", TRUE],

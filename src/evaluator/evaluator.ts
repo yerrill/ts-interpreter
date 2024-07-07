@@ -37,10 +37,20 @@ export function Eval(node: ast.Node, env: env.Environment): obj.Object | null {
 		if (isError(val)) {
 			return val
 		}
+        if (val == null) {
+            return NULL;
+        }
 		return new obj.ReturnValue(val);
     }
     else if (node instanceof ast.LetStatement) {
-        throw new Error("Not Implemented");
+        let val = Eval(node.value, env);
+        if (isError(val)) {
+            return val;
+        }
+        if (val == null) {
+            val = NULL;
+        }
+        env.set(node.name.name, val);
     }
 
     // Expressions
@@ -73,6 +83,31 @@ export function Eval(node: ast.Node, env: env.Environment): obj.Object | null {
     }
     else if (node instanceof ast.IfExpression) {
         return evalIfExpression(node, env);
+    }
+    else if (node instanceof ast.Identifier) {
+        return evalIdentifier(node, env);
+    }
+    else if (node instanceof ast.FunctionLiteral) {
+        return new obj.Function(node.parameters, node.body, env);
+    }
+    else if (node instanceof ast.CallExpression) {
+        let func = Eval(node.func, env);
+        if (func == null || isError(func)) {
+            return func;
+        }
+
+        let args = evalExpressions(node.arguments, env);
+        if (args.length == 1 && isError(args[0])) {
+            return args[0];
+        }
+
+        if (func instanceof obj.Function) {
+            return applyFunction(func, args);
+        } else {
+            return newError(`Not a function: ${func.Type()}`);
+        }
+
+        
     }
 
     //return newError(`No Eval Branch ${node.toString()}`);
@@ -235,3 +270,37 @@ function newError(msg: string): obj.Error {
     return new obj.Error(msg);
 }
 
+function evalExpressions(exps: ast.Expression[], env: env.Environment): obj.Object[] {
+    let result: obj.Object[];
+
+    result = exps.map((exp, i, a) => {
+        let evaluated = Eval(exp, env);
+        if (evaluated == null || isError(evaluated)) {
+            return NULL;
+        } else {
+            return evaluated;
+        }
+    });
+
+    return result;
+}
+
+function applyFunction(func: obj.Function, args: obj.Object[]): obj.Object | null {
+    let extendedEnv = extendFunctionEnv(func, args);
+    let evaluated = Eval(func.body, extendedEnv);
+    return unwrapReturnValue(evaluated);
+}
+
+function extendFunctionEnv(fn: obj.Function, args: obj.Object[]): env.Environment {
+	let newEnv = env.newEnclosedEnvironment(fn.env);
+    fn.parameters.map((v, i) => newEnv.set(v.name, args[i]));
+	return newEnv
+}
+
+function unwrapReturnValue(ob: obj.Object | null): obj.Object | null {
+    if (ob instanceof obj.ReturnValue) {
+        return ob.Value();
+    }
+
+	return ob;
+}
